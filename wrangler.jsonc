@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "3d-to-image",
+  "compatibility_date": "2025-04-03",
+  "account_id": "981183bc9d7a72407786661cbe49a598",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  }
+}

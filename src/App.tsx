@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import {
+  Center,
+  Environment,
+  OrbitControls,
+  PresentationControls,
+  useGLTF,
+} from "@react-three/drei";
+import * as THREE from "three";
 
 // GLBファイルを読み込んで表示するコンポーネント
 function Model({ url }: { url: string }) {
@@ -109,17 +116,50 @@ function App() {
       <button onClick={handleCaptureThumbnail}>Capture Thumbnail</button>
       <div className="app">
         <Canvas
-          gl={{ preserveDrawingBuffer: true }}
+          shadows
+          camera={{ position: [0, 2, 5], fov: 50 }}
+          gl={{
+            preserveDrawingBuffer: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.0,
+            outputColorSpace: THREE.SRGBColorSpace,
+          }}
           onCreated={({ gl }) => {
             displayCanvasRef.current = gl.domElement;
           }}
         >
-          <ambientLight intensity={1} />
-          <directionalLight position={[10, 10, 10]} intensity={10} />
-          <directionalLight position={[-10, -10, -10]} intensity={10} />
-
-          {modelUrl && <Model url={modelUrl} />}
-          <OrbitControls />
+          <Environment preset="apartment" background={false} />
+          <directionalLight
+            castShadow
+            position={[2.5, 8, 5]}
+            intensity={1.5}
+            shadow-mapSize={1024}
+          >
+            {/* 影のボケ具合を調整 */}
+            <orthographicCamera
+              attach="shadow-camera"
+              args={[-10, 10, -10, 10]}
+            />
+          </directionalLight>
+          <PresentationControls
+            global={false} // trueにすると画面全体どこでも掴める
+            cursor={true} // カーソルをgrabアイコンにする
+            snap={false} // 手を離すと元の角度に戻る（falseならその場で止まる）
+            rotation={[0, 0, 0]} // Default rotation
+            zoom={1}
+            polar={[-Infinity, Infinity]} // Vertical limits
+            azimuth={[-Infinity, Infinity]} // Horizontal limits
+          >
+            {modelUrl && (
+              <Center>
+                <Model url={modelUrl} />
+              </Center>
+            )}
+          </PresentationControls>
+          <OrbitControls
+            enableRotate={false} // 回転はPresentationControlsに任せるのでOFF
+            enableZoom={true} // ズームだけON！
+          />
         </Canvas>
       </div>
     </div>
